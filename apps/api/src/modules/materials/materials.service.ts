@@ -73,23 +73,32 @@ export class MaterialsService {
       const sections = await this.pdfParserService.extractSections(materialId, fileName, buffer);
       this.sectionsByMaterialId.set(materialId, sections);
 
-      const material = this.getById(materialId);
-      material.totalSections = sections.length;
-      material.status = 'ready';
-      this.materials.set(materialId, material);
+      this.updateMaterial(materialId, {
+        totalSections: sections.length,
+        status: 'ready',
+        error: undefined,
+      });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown parsing error';
-      const material = this.getById(materialId);
-      material.status = 'failed';
-      material.error = message;
-      this.materials.set(materialId, material);
+      this.updateMaterial(materialId, {
+        status: 'failed',
+        error: message,
+      });
     }
   }
 
   private updateStatus(materialId: string, status: MaterialStatus): void {
+    this.updateMaterial(materialId, { status });
+  }
+
+  private updateMaterial(materialId: string, patch: Partial<Material>): void {
     const material = this.getById(materialId);
-    material.status = status;
-    this.materials.set(materialId, material);
+    const updated: Material = {
+      ...material,
+      ...patch,
+    };
+
+    this.materials.set(materialId, updated);
   }
 
   private generateId(): string {
