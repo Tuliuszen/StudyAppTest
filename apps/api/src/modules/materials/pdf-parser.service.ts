@@ -5,6 +5,8 @@ const MIN_CONTENT_LENGTH = 20;
 const DEFAULT_CHUNK_SIZE = 1800;
 const EASY_DIFFICULTY_THRESHOLD = 400;
 const MEDIUM_DIFFICULTY_THRESHOLD = 1400;
+const NO_EXTRACTABLE_TEXT_MESSAGE = 'No extractable text content found in the provided PDF file.';
+const NO_CONTENT_TO_SPLIT_MESSAGE = 'No content available for section chunking.';
 
 @Injectable()
 export class PdfParserService {
@@ -35,7 +37,7 @@ export class PdfParserService {
       return latin1;
     }
 
-    return 'Brak możliwej do ekstrakcji treści tekstowej z pliku PDF.';
+    return NO_EXTRACTABLE_TEXT_MESSAGE;
   }
 
   private splitIntoSections(content: string): string[] {
@@ -54,7 +56,7 @@ export class PdfParserService {
       ?.map((chunk) => chunk.trim())
       .filter(Boolean) ?? [];
 
-    return fallback.length > 0 ? fallback : ['Brak treści do podziału na sekcje.'];
+    return fallback.length > 0 ? fallback : [NO_CONTENT_TO_SPLIT_MESSAGE];
   }
 
   private classifyDifficulty(content: string): 'easy' | 'medium' | 'hard' {

@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { randomUUID } from 'crypto';
 import { PdfParserService } from './pdf-parser.service';
 import type { ListMaterialsQueryDto } from './dto/list-materials-query.dto';
 import type { Material, MaterialSection, MaterialStatus } from './types/material.types';
@@ -92,6 +93,6 @@ export class MaterialsService {
   }
 
   private generateId(): string {
-    return `mat_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+    return `mat_${randomUUID()}`;
   }
 }

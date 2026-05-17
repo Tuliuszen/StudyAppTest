@@ -11,10 +11,23 @@ describe('MaterialsService', () => {
 
     expect(material.status).toBe('queued');
 
-    await new Promise((resolve) => setTimeout(resolve, 0));
-
-    const saved = service.getById(material.id);
+    const saved = await waitForReadyMaterial(service, material.id);
     expect(saved.status).toBe('ready');
     expect(saved.totalSections).toBeGreaterThan(0);
   });
 });
+
+async function waitForReadyMaterial(service: MaterialsService, materialId: string, timeoutMs = 500): Promise<ReturnType<MaterialsService['getById']>> {
+  const started = Date.now();
+
+  while (Date.now() - started < timeoutMs) {
+    const material = service.getById(materialId);
+    if (material.status === 'ready' || material.status === 'failed') {
+      return material;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
+
+  return service.getById(materialId);
+}
