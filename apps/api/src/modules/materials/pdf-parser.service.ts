@@ -71,6 +71,6 @@ export class PdfParserService {
   }
 
   private buildSectionTitle(fileName: string, sectionOrder: number): string {
-    return `${fileName} — Sekcja ${sectionOrder}`;
+    return `${fileName} — Section ${sectionOrder}`;
   }
 }
