@@ -1,6 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import type { MaterialSection } from './types/material.types';
 
+const MIN_CONTENT_LENGTH = 20;
+const DEFAULT_CHUNK_SIZE = 1800;
+const EASY_DIFFICULTY_THRESHOLD = 400;
+const MEDIUM_DIFFICULTY_THRESHOLD = 1400;
+
 @Injectable()
 export class PdfParserService {
   async extractSections(materialId: string, fileName: string, buffer: Buffer): Promise<MaterialSection[]> {
@@ -21,12 +26,12 @@ export class PdfParserService {
 
   private decodeContent(buffer: Buffer): string {
     const utf = buffer.toString('utf8').replace(/\0/g, '').trim();
-    if (utf.length >= 20) {
+    if (utf.length >= MIN_CONTENT_LENGTH) {
       return utf;
     }
 
     const latin1 = buffer.toString('latin1').replace(/\0/g, '').trim();
-    if (latin1.length >= 20) {
+    if (latin1.length >= MIN_CONTENT_LENGTH) {
       return latin1;
     }
 
@@ -44,16 +49,20 @@ export class PdfParserService {
       return candidates;
     }
 
-    const fallback = normalized.match(/.{1,1800}(?:\s|$)/g)?.map((chunk) => chunk.trim()).filter(Boolean) ?? [];
+    const fallback = normalized
+      .match(new RegExp(`.{1,${DEFAULT_CHUNK_SIZE}}(?:\\s|$)`, 'g'))
+      ?.map((chunk) => chunk.trim())
+      .filter(Boolean) ?? [];
+
     return fallback.length > 0 ? fallback : ['Brak treści do podziału na sekcje.'];
   }
 
   private classifyDifficulty(content: string): 'easy' | 'medium' | 'hard' {
     const length = content.length;
-    if (length < 400) {
+    if (length < EASY_DIFFICULTY_THRESHOLD) {
       return 'easy';
     }
-    if (length < 1400) {
+    if (length < MEDIUM_DIFFICULTY_THRESHOLD) {
       return 'medium';
     }
     return 'hard';
