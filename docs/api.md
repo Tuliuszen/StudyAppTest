@@ -78,7 +78,7 @@ Paginowana lista sekcji materiału.
       "id": "mat_xxx-section-1",
       "materialId": "mat_xxx",
       "order": 1,
-      "title": "biology-notes.pdf — Sekcja 1",
+      "title": "biology-notes.pdf — Section 1",
       "content": "...",
       "sourcePageStart": 1,
       "sourcePageEnd": 1,
